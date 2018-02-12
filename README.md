@@ -20,4 +20,5 @@ Esta aplicación ofrece:
 
 
  5. Lanzar la aplicacion desde Visual Studio pulsando F5 o clicando en el boton de play.
+   5.1 *En el alta de usuarios, para establecer la ubicación, en el combo se debe escribir la localidad, seguida del pais, (ejem: León,ES), la API buscará automaticamente dicha ubicación.
  6. Conectarse con el navegador a http://localhost:54313
