@@ -1,0 +1,150 @@
+﻿@model Aplicacion_Meteorologia.Models.Usuario
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+@section Scripts
+{
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+
+    <script>
+        var API_KEY_OPENWEATHERMAP = "b142a072f962c689ff9d6bbf9b7d85ea";
+        var URL_API_OPENWEATHERMAP = "http://api.openweathermap.org/data/2.5/weather";
+
+        function obtenerMeteorologia(filtro) {
+            $.ajax({
+                type: "GET",
+                url: URL_API_OPENWEATHERMAP,
+                data: {
+                    "units": "metric",
+                    "id": filtro,
+                    "appid": API_KEY_OPENWEATHERMAP
+                }
+            }).done(function (response) {
+                $("#textareaRespuestaMeteorologia").val(JSON.stringify(response));
+                $("#Localizacion").val(filtro);
+                var cadenaMeteorologia = response['name'] + "," + response['sys']['country'] + ": " + response['main']['temp'] + " ºC, " + "Min: " + response['main']['temp_min'] + " ºC, " + "Max: " + response['main']['temp_max'] + " ºC"
+                $("#Meteorologia").val(cadenaMeteorologia)
+            });
+        }
+
+        $(document).ready(function () {
+
+            $("#filtroCiudad").select2({
+                width: "100%",
+                ajax: {
+                    url: "http://localhost:54313/Ciudades",
+                    dataType: 'json',
+                    type: "GET",
+                    quietMillis: 300,
+                    minimumInputLength: 3,
+                    data: function (params) {
+                        return {
+                            filtro: params.term
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: $.map(data, function (obj) {
+                                return { id: obj['id'], text: obj['name'] + "," + obj['country'] };
+                            })
+                        };
+                    }
+                }
+            });
+
+            $("#btnObtenerMeteorologia").click(function () {
+                var cadenaSelect2 = $("#filtroCiudad").select2("val");
+                if (cadenaSelect2 != null) {
+                    obtenerMeteorologia(cadenaSelect2);
+                }
+            });
+        });
+
+    </script>
+}
+
+
+<h2>@Html.DisplayFor(model => model.Id)</h2>
+<hr />
+
+<div class="row">
+    <div class="col-xs-12 col-sm-6">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                @Html.HiddenFor(model => model.Id)
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Password, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control", @required = true } })
+                        @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.NombreCompleto, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.NombreCompleto, new { htmlAttributes = new { @class = "form-control", @required = true } })
+                        @Html.ValidationMessageFor(model => model.NombreCompleto, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Dni, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.Dni, new { htmlAttributes = new { @class = "form-control", @required = true } })
+                        @Html.ValidationMessageFor(model => model.Dni, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Localizacion, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.Localizacion, new { htmlAttributes = new { @class = "form-control", @required = true } })
+                        @Html.ValidationMessageFor(model => model.Localizacion, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Meteorologia, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.Meteorologia, new { htmlAttributes = new { @class = "form-control", @required = true } })
+                        @Html.ValidationMessageFor(model => model.Meteorologia, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="text-center">
+                    <div class="form-group">
+                        <div class="form-actions no-color">
+                            <input type="submit" value="Guardar" class="btn btn-default" /> |
+                            @Html.ActionLink("Volver al listado", "Index")
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        }
+    </div>
+
+    <div class="col-xs-12 col-sm-6">
+        <select id="filtroCiudad" name="filtroCiudad"></select>
+        <br />
+        <br />
+        <button id="btnObtenerMeteorologia" class="btn btn-default">Obtener meteorologia</button>
+        <br />
+        <br />
+        <br />
+        <label>Respuesta API openweathermap</label>
+        <br />
+        <textarea id="textareaRespuestaMeteorologia" rows="15" readonly class="form-control"></textarea>
+    </div>
+</div>
